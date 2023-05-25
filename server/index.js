@@ -4,6 +4,7 @@ const express = require('express');
 const compression = require('compression');
 const morgan = require('morgan');
 const router = require('./routes');
+const client = require('./db/db');
 
 const app = express();
 
@@ -18,7 +19,7 @@ app.use('/products', router.products);
 app.use('/qa', router.qa);
 app.use('/reviews', router.reviews);
 app.use('/cart', router.cart);
-
+console.log('client: ', client);
 // Serving static files
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
