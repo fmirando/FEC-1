@@ -1,13 +1,13 @@
--- DROP DATABASE IF EXISTS products;
--- CREATE DATABASE products;
+DROP DATABASE IF EXISTS products;
+CREATE DATABASE products;
 
--- \c products;
+\c products;
 
 CREATE TABLE product (
   id SERIAL PRIMARY KEY NOT NULL,
   product_name VARCHAR(100) NOT NULL,
-  slogan VARCHAR(100) NOT NULL,
-  prod_description VARCHAR(255) NOT NULL,
+  slogan VARCHAR(300) NOT NULL,
+  description VARCHAR(500) NOT NULL,
   category VARCHAR(100) NOT NULL,
   default_price INT NOT NULL
 );
@@ -22,16 +22,16 @@ CREATE TABLE styles (
   id SERIAL PRIMARY KEY NOT NULL,
   product_id INT REFERENCES product(id),
   style_name VARCHAR(255) NOT NULL,
-  sale_price DECIMAL(10, 2) NOT NULL,
-  original_price DECIMAL(10, 2) NOT NULL,
+  sale_price VARCHAR(100),
+  original_price NUMERIC(15, 2) NOT NULL,
   default_style BOOLEAN
 );
 
 CREATE TABLE photos (
   id SERIAL PRIMARY KEY NOT NULL,
   style_id INT REFERENCES styles(id),
-  photo_url VARCHAR(255) NOT NULL,
-  thumbnail_url VARCHAR(255) NOT NULL
+  photo_url TEXT NOT NULL,
+  thumbnail_url TEXT NOT NULL
 );
 
 CREATE TABLE skus (
@@ -39,5 +39,12 @@ CREATE TABLE skus (
   style_id INT REFERENCES styles(id),
   size VARCHAR(10),
   quantity INT NOT NULL
+);
+
+CREATE TABLE features (
+  id SERIAL PRIMARY KEY NOT NULL,
+  product_id INT REFERENCES product(id),
+  feature VARCHAR(100),
+  value VARCHAR(50)
 );
 

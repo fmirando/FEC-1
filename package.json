@@ -7,7 +7,8 @@
     "test": "jest --env=jsdom --coverage --verbose --collectCoverageFrom=**/*.jsx",
     "dev": "npx webpack --watch --mode development & npx nodemon --watch ./server ./server/index.js",
     "build": "npx webpack --mode production",
-    "start": "node ./server/index.js"
+    "start": "node ./server/index.js",
+    "import-products-csv": "psql -d products -U frankmirando -h localhost -p 5432 -f ./server/db/import_products_csv_script.sql"
   },
   "repository": {
     "type": "git",
