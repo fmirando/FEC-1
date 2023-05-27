@@ -1,5 +1,18 @@
 /* eslint-disable prefer-destructuring */
 const axios = require('axios');
+const models = require('../models');
+
+// module.exports = {
+//   get: (res, res) => {
+//     models.getProduct
+//   },
+//   getStyles: (req, res) => {
+
+//   },
+//   getRelated: (req, res) => {
+
+//   }
+// };
 
 const { ATELIER_API, API_TOKEN } = process.env;
 
@@ -16,13 +29,16 @@ module.exports = {
         res.sendStatus(404);
       });
   },
-  getStyles(req, res) {
+  getStyles: (req, res) => {
     axios.get(`${ATELIER_API}/products/${req.params.product_id}/styles`, {
       headers: {
         authorization: API_TOKEN,
       },
     })
-      .then(({ data }) => res.status(200).json(data))
+      .then(({ data }) => {
+        console.log('Sending styles data to client: ', data);
+        res.status(200).json(data);
+      })
       .catch((err) => {
         console.log('There was a problem in the server retrieving product styles: ', err);
         res.sendStatus(404);
