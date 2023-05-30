@@ -13,7 +13,7 @@ export default function Style() {
     <>
       <div className="product-price-container">
         <div className="product-price">
-          { selectedStyle.sale_price ? (
+          { selectedStyle.sale_price !== 'null' ? (
             <span style={{ textDecoration: 'line-through' }}>
               $
               {selectedStyle.original_price || styleList[0].original_price}
@@ -27,7 +27,7 @@ export default function Style() {
         </div>
         <div className="sales-price">
           <span className="span-salesprice">
-            {selectedStyle.sale_price ? `$${selectedStyle.sale_price}` : null}
+            {selectedStyle.sale_price !== 'null' ? `$${selectedStyle.sale_price}` : null}
           </span>
         </div>
       </div>

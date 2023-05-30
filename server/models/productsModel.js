@@ -6,11 +6,29 @@ module.exports = {
   getProduct: (productId) => {
     const query = {
       text: `
-      SELECT *
-      FROM product
-      WHERE id = $1
+      SELECT
+      p.id,
+      p.product_name AS name,
+      p.slogan,
+      p.description AS description,
+      p.category,
+      p.default_price,
+      json_agg(
+          jsonb_build_object(
+              'feature', f.feature,
+              'value', f.value
+          )
+      ) AS features
+      FROM
+          product AS p
+      LEFT JOIN
+          features AS f ON p.id = f.product_id
+      WHERE
+          p.id = $1
+      GROUP BY
+      p.id;
       `,
-      value: [productId],
+      values: [productId],
     };
     return pool.query(query)
       .then((res) => {
@@ -42,9 +60,8 @@ module.exports = {
       });
   },
   getStyles: (productId) => {
-    // Future optimization: combine queries for styles, photos and skus
-    // to minimize number of model functions
     const query = {
+      // Fix later: this query wraps the data in an uneccessary object
       text: `
       SELECT
       jsonb_build_object(
@@ -101,44 +118,6 @@ module.exports = {
         throw err;
       });
   },
-  // getPhotos: (styleId) => {
-  //   const query = {
-  //     text: `
-  //     SELECT *
-  //     FROM photos
-  //     WHERE style_id = $1
-  //     `,
-  //     value: [styleId],
-  //   };
-  //   return pool.query(query)
-  //     .then((res) => {
-  //       console.log('Photos: ', res.rows);
-  //       return res.rows;
-  //     })
-  //     .catch((err) => {
-  //       console.error('Couldn\'t retrieve photos...');
-  //       throw err;
-  //     });
-  // },
-  // getSkus: (styleId) => {
-  //   const query = {
-  //     text: `
-  //     SELECT *
-  //     FROM skus
-  //     WHERE style_id = $1
-  //     `,
-  //     value: [styleId],
-  //   };
-  //   return pool.query(query)
-  //     .then((res) => {
-  //       console.log('Skus: ', res.rows);
-  //       return res.rows;
-  //     })
-  //     .catch((err) => {
-  //       console.error('Couldn\'t retrieve skus...');
-  //       throw err;
-  //     });
-  // },
   getFeatures: (styleId) => {
     const query = {
       text: `
@@ -160,88 +139,23 @@ module.exports = {
   },
 };
 
-// Use the query below instead
-// explain analyze
 // SELECT
-//     p.id AS product_id,
+//     p.id,
+//     p.product_name AS name,
+//     p.slogan,
+//     p.description AS description,
+//     p.category,
+//     p.default_price,
 //     json_agg(
 //         jsonb_build_object(
-//             'style_id', s.id,
-//             'name', s.style_name,
-//             'original_price', s.original_price,
-//             'sale_price', s.sale_price,
-//             'default?', s.default_style,
-//             'photos', (
-//                 SELECT json_agg(
-//                     jsonb_build_object(
-//                         'thumbnail_url', ph.thumbnail_url,
-//                         'url', ph.photo_url
-//                     )
-//                 )
-//                 FROM photos AS ph
-//                 WHERE ph.style_id = s.id
-//             ),
-//             'skus', (
-//                 SELECT jsonb_object_agg(
-//                     sk.id::text,
-//                     jsonb_build_object(
-//                         'quantity', sk.quantity,
-//                         'size', sk.size
-//                     )
-//                 )
-//                 FROM skus AS sk
-//                 WHERE sk.style_id = s.id
-//             )
+//             'feature', f.feature,
+//             'value', f.value
 //         )
-//     ) AS results
+//     ) AS features
 // FROM
 //     product AS p
-// JOIN
-//     styles AS s ON p.id = s.product_id
-// WHERE
-//     p.id = 40344
-// GROUP BY
-//     p.id;
-
-// Coming back as one big object from mr gpt
-// SELECT
-//     jsonb_build_object(
-//         'product_id', p.id,
-//         'results', jsonb_agg(
-//             jsonb_build_object(
-//                 'style_id', s.id,
-//                 'name', s.style_name,
-//                 'original_price', s.original_price,
-//                 'sale_price', s.sale_price,
-//                 'default?', s.default_style,
-//                 'photos', (
-//                     SELECT jsonb_agg(
-//                         jsonb_build_object(
-//                             'thumbnail_url', ph.thumbnail_url,
-//                             'url', ph.photo_url
-//                         )
-//                     )
-//                     FROM photos AS ph
-//                     WHERE ph.style_id = s.id
-//                 ),
-//                 'skus', (
-//                     SELECT jsonb_object_agg(
-//                         sk.id::text,
-//                         jsonb_build_object(
-//                             'quantity', sk.quantity,
-//                             'size', sk.size
-//                         )
-//                     )
-//                     FROM skus AS sk
-//                     WHERE sk.style_id = s.id
-//                 )
-//             )
-//         )
-//     ) AS result_object
-// FROM
-//     product AS p
-// JOIN
-//     styles AS s ON p.id = s.product_id
+// LEFT JOIN
+//     features AS f ON p.id = f.product_id
 // WHERE
 //     p.id = 40344
 // GROUP BY

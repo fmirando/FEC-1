@@ -38,8 +38,6 @@ function Product({ product }) {
       axios.get(`/products/${product.id}/styles`, {
       })
         .then(({ data }) => {
-          console.log('Logging from client: ', data);
-          // console.log('Data: ', data[0].result.results);
           setStyleList(data.results);
           setSelectedStyle(data.results[0]);
         })
