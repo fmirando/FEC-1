@@ -1,7 +1,16 @@
-DROP DATABASE IF EXISTS products;
-CREATE DATABASE products;
+-- DROP DATABASE IF EXISTS products;
+-- CREATE DATABASE products;
 
-\c products;
+-- \c products;
+
+-- Index on styles table
+CREATE INDEX idx_styles_product_id ON styles (product_id);
+
+-- Index on photos table
+CREATE INDEX idx_photos_style_id ON photos (style_id);
+
+-- Index on skus table
+CREATE INDEX idx_skus_style_id ON skus (style_id);
 
 CREATE TABLE product (
   id SERIAL PRIMARY KEY NOT NULL,

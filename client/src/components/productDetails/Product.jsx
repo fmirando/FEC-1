@@ -34,6 +34,7 @@ function Product({ product }) {
 
   function getProductStyles() {
     if (product) {
+      console.log('Product id: ', product.id);
       axios.get(`/products/${product.id}/styles`, {
       })
         .then(({ data }) => {

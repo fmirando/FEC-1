@@ -37,7 +37,9 @@ function RelatedProductCard({
     for (let i = 0; i < styles.length; i += 1) {
       thumbnailImgs.push(styles[i].photos[0].thumbnail_url);
     }
-    setSalePrice(styles[0].sale_price);
+    if (styles[0].sale_price !== 'null') {
+      setSalePrice(styles[0].sale_price);
+    }
     setDefaultImg(thumbnailImgs[0]);
     setThumbnails(thumbnailImgs);
   }

@@ -22,6 +22,7 @@ function RelatedProductsList({ product, updateProduct }) {
     if (product) {
       axios.get(`/products/${product.id}/related`)
         .then(({ data }) => {
+          console.log('Client: related products data: ', data);
           const relatedIds = [];
           const relatedArr = [];
           data.forEach((prod) => {
