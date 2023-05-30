@@ -43,11 +43,14 @@ module.exports = {
   getRelatedProducts: (productId) => {
     const query = {
       text: `
-      SELECT *
-      FROM related_products
-      WHERE current_product_id = $1
+      SELECT
+      jsonb_agg(related_product_id)::jsonb AS related_product_ids
+      FROM
+          related_products
+      WHERE
+      current_product_id = $1;
       `,
-      value: [productId],
+      values: [productId],
     };
     return pool.query(query)
       .then((res) => {
@@ -118,45 +121,4 @@ module.exports = {
         throw err;
       });
   },
-  getFeatures: (styleId) => {
-    const query = {
-      text: `
-      SELECT *
-      FROM features
-      WHERE style_id = $1
-      `,
-      value: [styleId],
-    };
-    return pool.query(query)
-      .then((res) => {
-        console.log('Features: ', res.rows);
-        return res.rows;
-      })
-      .catch((err) => {
-        console.error('Couldn\'t retrieve features...');
-        throw err;
-      });
-  },
 };
-
-// SELECT
-//     p.id,
-//     p.product_name AS name,
-//     p.slogan,
-//     p.description AS description,
-//     p.category,
-//     p.default_price,
-//     json_agg(
-//         jsonb_build_object(
-//             'feature', f.feature,
-//             'value', f.value
-//         )
-//     ) AS features
-// FROM
-//     product AS p
-// LEFT JOIN
-//     features AS f ON p.id = f.product_id
-// WHERE
-//     p.id = 40344
-// GROUP BY
-//     p.id;
