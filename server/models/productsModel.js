@@ -47,55 +47,57 @@ module.exports = {
     const query = {
       text: `
       SELECT
-      p.id AS product_id,
-      json_agg(
-          jsonb_build_object(
-              'style_id', s.id,
-              'name', s.style_name,
-              'original_price', s.original_price,
-              'sale_price', s.sale_price,
-              'default?', s.default_style,
-              'photos', (
-                  SELECT json_agg(
-                      jsonb_build_object(
-                          'thumbnail_url', ph.thumbnail_url,
-                          'url', ph.photo_url
+      jsonb_build_object(
+          'product_id', p.id,
+          'results', jsonb_agg(
+              jsonb_build_object(
+                  'style_id', s.id,
+                  'name', s.style_name,
+                  'original_price', s.original_price,
+                  'sale_price', s.sale_price,
+                  'default?', s.default_style,
+                  'photos', (
+                      SELECT jsonb_agg(
+                          jsonb_build_object(
+                              'thumbnail_url', ph.thumbnail_url,
+                              'url', ph.photo_url
+                          )
                       )
-                  )
-                  FROM photos AS ph
-                  WHERE ph.style_id = s.id
-              ),
-              'skus', (
-                  SELECT jsonb_object_agg(
-                      sk.size,
-                      jsonb_build_object(
-                          'quantity', sk.quantity,
-                          'size', sk.size
+                      FROM photos AS ph
+                      WHERE ph.style_id = s.id
+                  ),
+                  'skus', (
+                      SELECT jsonb_object_agg(
+                          sk.id::text,
+                          jsonb_build_object(
+                              'quantity', sk.quantity,
+                              'size', sk.size
+                          )
                       )
+                      FROM skus AS sk
+                      WHERE sk.style_id = s.id
                   )
-                  FROM skus AS sk
-                  WHERE sk.style_id = s.id
               )
           )
-      ) AS results
+      ) AS result
       FROM
-      product AS p
+          product AS p
       JOIN
-      styles AS s ON p.id = s.product_id
+          styles AS s ON p.id = s.product_id
       WHERE
-      p.id = $1
+          p.id = $1
       GROUP BY
       p.id;
       `,
-      value: [productId],
+      values: [productId],
     };
     return pool.query(query)
       .then((res) => {
-        console.log('Styles: ', res.rows);
+        console.log('Model: Styles: ', res.rows);
         return res.rows;
       })
       .catch((err) => {
-        console.err('Couldn\'t retrieve styles...', err);
+        console.error('Couldn\'t retrieve styles...', err);
         throw err;
       });
   },
@@ -158,6 +160,7 @@ module.exports = {
   },
 };
 
+// Use the query below instead
 // explain analyze
 // SELECT
 //     p.id AS product_id,
@@ -196,7 +199,50 @@ module.exports = {
 // JOIN
 //     styles AS s ON p.id = s.product_id
 // WHERE
-//     p.id = 1
+//     p.id = 40344
 // GROUP BY
 //     p.id;
 
+// Coming back as one big object from mr gpt
+// SELECT
+//     jsonb_build_object(
+//         'product_id', p.id,
+//         'results', jsonb_agg(
+//             jsonb_build_object(
+//                 'style_id', s.id,
+//                 'name', s.style_name,
+//                 'original_price', s.original_price,
+//                 'sale_price', s.sale_price,
+//                 'default?', s.default_style,
+//                 'photos', (
+//                     SELECT jsonb_agg(
+//                         jsonb_build_object(
+//                             'thumbnail_url', ph.thumbnail_url,
+//                             'url', ph.photo_url
+//                         )
+//                     )
+//                     FROM photos AS ph
+//                     WHERE ph.style_id = s.id
+//                 ),
+//                 'skus', (
+//                     SELECT jsonb_object_agg(
+//                         sk.id::text,
+//                         jsonb_build_object(
+//                             'quantity', sk.quantity,
+//                             'size', sk.size
+//                         )
+//                     )
+//                     FROM skus AS sk
+//                     WHERE sk.style_id = s.id
+//                 )
+//             )
+//         )
+//     ) AS result_object
+// FROM
+//     product AS p
+// JOIN
+//     styles AS s ON p.id = s.product_id
+// WHERE
+//     p.id = 40344
+// GROUP BY
+//     p.id;

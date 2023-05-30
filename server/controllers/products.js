@@ -3,11 +3,26 @@ const axios = require('axios');
 const models = require('../models');
 
 // module.exports = {
-//   get: (res, res) => {
-//     models.getProduct
-//   },
-//   getStyles: (req, res) => {
+//   // get: (res, res) => {
+//   //   const { id } = req.query;
+//   //   models.productsModel.getProduct(id)
+//   //     .then((results) => {
+//   //       console.log(results);
+//   //     })
+//   //     .catch((err) => {
 
+//   //     });
+//   // },
+//   getStyles: (req, res) => {
+//     const { id } = req.query;
+//     models.productsModel.getStyles(id)
+//       .then((results) => {
+//         console.log('Styles >>>> ', { results });
+//         res.status(200).json(results);
+//       })
+//       .catch((err) => {
+//         console.error('Controller: unable to retrieve styles...', err);
+//       });
 //   },
 //   getRelated: (req, res) => {
 
@@ -30,18 +45,17 @@ module.exports = {
       });
   },
   getStyles: (req, res) => {
-    axios.get(`${ATELIER_API}/products/${req.params.product_id}/styles`, {
-      headers: {
-        authorization: API_TOKEN,
-      },
-    })
-      .then(({ data }) => {
-        console.log('Sending styles data to client: ', data);
-        res.status(200).json(data);
+    const { product_id } = req.params;
+    console.log('Req.params.product_id: ', req.params);
+    models.productsModel.getStyles(product_id)
+      .then((results) => {
+        console.log('Styles >>>> ', results[0].result);
+        // TODO: reformat styles data before sending back to client
+        // I shouldn't have to change anything on the client side
+        res.status(200).send(results[0].result);
       })
       .catch((err) => {
-        console.log('There was a problem in the server retrieving product styles: ', err);
-        res.sendStatus(404);
+        console.error('Controller: unable to retrieve styles...', err);
       });
   },
 
@@ -59,3 +73,5 @@ module.exports = {
       });
   },
 };
+
+  // My styles function
