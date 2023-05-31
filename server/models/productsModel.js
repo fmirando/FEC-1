@@ -1,4 +1,5 @@
 // This models file will interact with DB
+// \i ./server/db/products.sql;
 const pool = require('../db/db');
 
 module.exports = {
@@ -26,7 +27,8 @@ module.exports = {
       WHERE
           p.id = $1
       GROUP BY
-      p.id;
+      p.id
+      LIMIT 1;
       `,
       values: [productId],
     };
@@ -122,3 +124,27 @@ module.exports = {
       });
   },
 };
+
+// explain analyze
+// SELECT
+// p.id,
+// p.product_name AS name,
+// p.slogan,
+// p.description AS description,
+// p.category,
+// p.default_price,
+// json_agg(
+//     jsonb_build_object(
+//         'feature', f.feature,
+//         'value', f.value
+//     )
+// ) AS features
+// FROM
+//     product AS p
+// LEFT JOIN
+//     features AS f ON p.id = f.product_id
+// WHERE
+//     p.id = 52168
+// GROUP BY
+// p.id
+// LIMIT 1;
