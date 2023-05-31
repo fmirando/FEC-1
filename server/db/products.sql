@@ -3,6 +3,10 @@
 
 -- \c products;
 
+-- Index on product and features table
+CREATE INDEX idx_product_id ON product (id);
+CREATE INDEX idx_features_product_id ON features (product_id);
+
 -- Index on styles table
 CREATE INDEX idx_styles_product_id ON styles (product_id);
 
@@ -11,6 +15,9 @@ CREATE INDEX idx_photos_style_id ON photos (style_id);
 
 -- Index on skus table
 CREATE INDEX idx_skus_style_id ON skus (style_id);
+
+-- Index on related_products table
+CREATE INDEX idx_related_products_current_product_id ON related_products (current_product_id);
 
 CREATE TABLE product (
   id SERIAL PRIMARY KEY NOT NULL,

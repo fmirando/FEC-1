@@ -1,4 +1,5 @@
 // This models file will interact with DB
+// \i ./server/db/products.sql;
 const pool = require('../db/db');
 
 module.exports = {
@@ -26,7 +27,8 @@ module.exports = {
       WHERE
           p.id = $1
       GROUP BY
-      p.id;
+      p.id
+      LIMIT 1;
       `,
       values: [productId],
     };
@@ -122,3 +124,47 @@ module.exports = {
       });
   },
 };
+
+// explain analyze
+// SELECT
+// jsonb_build_object(
+//     'product_id', p.id,
+//     'results', jsonb_agg(
+//         jsonb_build_object(
+//             'style_id', s.id,
+//             'name', s.style_name,
+//             'original_price', s.original_price,
+//             'sale_price', s.sale_price,
+//             'default?', s.default_style,
+//             'photos', (
+//                 SELECT jsonb_agg(
+//                     jsonb_build_object(
+//                         'thumbnail_url', ph.thumbnail_url,
+//                         'url', ph.photo_url
+//                     )
+//                 )
+//                 FROM photos AS ph
+//                 WHERE ph.style_id = s.id
+//             ),
+//             'skus', (
+//                 SELECT jsonb_object_agg(
+//                     sk.id::text,
+//                     jsonb_build_object(
+//                         'quantity', sk.quantity,
+//                         'size', sk.size
+//                     )
+//                 )
+//                 FROM skus AS sk
+//                 WHERE sk.style_id = s.id
+//             )
+//         )
+//     )
+// ) AS result
+// FROM
+//     product AS p
+// JOIN
+//     styles AS s ON p.id = s.product_id
+// WHERE
+//     p.id = 36585
+// GROUP BY
+// p.id;
