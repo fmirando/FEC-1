@@ -127,24 +127,44 @@ module.exports = {
 
 // explain analyze
 // SELECT
-// p.id,
-// p.product_name AS name,
-// p.slogan,
-// p.description AS description,
-// p.category,
-// p.default_price,
-// json_agg(
-//     jsonb_build_object(
-//         'feature', f.feature,
-//         'value', f.value
+// jsonb_build_object(
+//     'product_id', p.id,
+//     'results', jsonb_agg(
+//         jsonb_build_object(
+//             'style_id', s.id,
+//             'name', s.style_name,
+//             'original_price', s.original_price,
+//             'sale_price', s.sale_price,
+//             'default?', s.default_style,
+//             'photos', (
+//                 SELECT jsonb_agg(
+//                     jsonb_build_object(
+//                         'thumbnail_url', ph.thumbnail_url,
+//                         'url', ph.photo_url
+//                     )
+//                 )
+//                 FROM photos AS ph
+//                 WHERE ph.style_id = s.id
+//             ),
+//             'skus', (
+//                 SELECT jsonb_object_agg(
+//                     sk.id::text,
+//                     jsonb_build_object(
+//                         'quantity', sk.quantity,
+//                         'size', sk.size
+//                     )
+//                 )
+//                 FROM skus AS sk
+//                 WHERE sk.style_id = s.id
+//             )
+//         )
 //     )
-// ) AS features
+// ) AS result
 // FROM
 //     product AS p
-// LEFT JOIN
-//     features AS f ON p.id = f.product_id
+// JOIN
+//     styles AS s ON p.id = s.product_id
 // WHERE
-//     p.id = 52168
+//     p.id = 36585
 // GROUP BY
-// p.id
-// LIMIT 1;
+// p.id;
